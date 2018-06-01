@@ -6,6 +6,7 @@ import glob
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image as ImageMsg
 from std_msgs.msg import String, Int32
+import rosbag
 
 class Room(object):
     def __init__(self, name, doorways):
@@ -65,21 +66,28 @@ class UserInput(object):
 
 def main():
     rospy.init_node('rosbag_playback')
-    doorways = [(0,0), (0,1)] # fake tuple for doorway locations
-    high_bay = Room('high_bay', doorways) 
+    
+    bag = rosbag.Bag('/home/nrgadmin/catkin_ws/src/vr_ui/bag/selmawashere.bag')
+    image_list = []
+    for topic, msg, t in bag.read_messages(topics=['/front_camera/image_raw', '/rear_camera/image_raw', '/rosarnl_node/amcl_pose']):
+        print msg
+    bag.close()        
 
-    user_input = UserInput()    
+#    doorways = [(0,0), (0,1)] # fake tuple for doorway locations
+#    high_bay = Room('high_bay', doorways) 
 
-    front_image_pub = rospy.Publisher('/front_camera/image_raw', ImageMsg, queue_size=10) 
-    rear_image_pub = rospy.Publisher('/rear_camera/image_raw', ImageMsg, queue_size=10)
+#    user_input = UserInput()    
 
-    print 'initializations complete'
+#    front_image_pub = rospy.Publisher('/front_camera/image_raw', ImageMsg, queue_size=10) 
+#    rear_image_pub = rospy.Publisher('/rear_camera/image_raw', ImageMsg, queue_size=10)
 
-    while not rospy.is_shutdown():
-        front_image_pub.publish(high_bay.images[user_input.direction].image_front)
-        rear_image_pub.publish(high_bay.images[user_input.direction].image_rear)
+#    print 'initializations complete'
 
-    rospy.spin()
+#    while not rospy.is_shutdown():
+#        front_image_pub.publish(high_bay.images[user_input.direction].image_front)
+#        rear_image_pub.publish(high_bay.images[user_input.direction].image_rear)
+
+#    rospy.spin()
 
 if __name__ == '__main__':
     main()
